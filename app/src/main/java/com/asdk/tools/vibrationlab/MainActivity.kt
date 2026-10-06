@@ -26,6 +26,7 @@ import com.asdk.tools.vibrationlab.databinding.ItemVibrationPointBinding
 import com.asdk.tools.vibrationlab.databinding.ItemVibrationPresetBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.CornerFamily
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity(), PresetHost {
     private var lastPlaybackRunner: ((looping: Boolean) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        DynamicColors.applyToActivityIfAvailable(this)
         super.onCreate(savedInstanceState)
         binding = ActivityVibrationTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
