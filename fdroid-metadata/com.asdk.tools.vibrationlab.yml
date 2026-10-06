@@ -26,7 +26,6 @@ Builds:
   - versionName: 1.1.0
     versionCode: 2
     commit: v1.1.0
-    subdir: app
     gradle:
       - yes
 
