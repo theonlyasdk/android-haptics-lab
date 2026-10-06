@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notices>
+    <notice>
+        <name>Android Jetpack Core &amp; AppCompat</name>
+        <url>https://developer.android.com/jetpack</url>
+        <copyright>Copyright (c) 2005-2026 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Material Components for Android</name>
+        <url>https://github.com/material-components/material-components-android</url>
+        <copyright>Copyright (c) 2015-2026 Google, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Kotlin Standard Library &amp; Coroutines</name>
+        <url>https://github.com/JetBrains/kotlin</url>
+        <copyright>Copyright (c) 2010-2026 JetBrains s.r.o. and Kotlin Programming Language contributors</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>LicensesDialog</name>
+        <url>https://github.com/PSDev/LicensesDialog</url>
+        <copyright>Copyright (c) 2013-2026 Philip Schiffer</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+</notices>
