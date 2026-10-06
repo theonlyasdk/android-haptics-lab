@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), PresetHost {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_view_source -> {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/theonlyasdk"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/theonlyasdk/android-haptics-lab"))
                 startActivity(intent)
                 true
             }
@@ -497,6 +497,7 @@ class MainActivity : AppCompatActivity(), PresetHost {
         val waveform = generateCurrentWaveform()
         if (waveform.timings.isEmpty()) return
         currentActiveWaveform = waveform
+        binding.graphView.setPattern(waveform.graphPoints, waveform.isContinuous)
 
         val repeat = if (looping) 0 else -1
         Haptics.playWaveform(vibrator, waveform.timings, waveform.amplitudes, repeat)
