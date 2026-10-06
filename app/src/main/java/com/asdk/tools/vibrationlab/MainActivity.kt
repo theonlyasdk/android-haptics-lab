@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity(), PresetHost {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var pendingHapticDispatch: Runnable? = null
     private val scheduledTasks = mutableListOf<Runnable>()
+    private var lastPlaybackRunner: ((looping: Boolean) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -401,6 +402,7 @@ class MainActivity : AppCompatActivity(), PresetHost {
     }
 
     private fun updateWaveformGraphAndPreview() {
+        lastPlaybackRunner = { looping -> runWaveform(looping) }
         val waveform = generateCurrentWaveform()
         binding.graphView.setPattern(waveform.graphPoints, waveform.isContinuous)
 
@@ -487,7 +489,8 @@ class MainActivity : AppCompatActivity(), PresetHost {
             if (isPlaying) {
                 stopAll()
             } else {
-                runWaveform(looping = false)
+                val runner = lastPlaybackRunner ?: { runWaveform(looping = false) }
+                runner.invoke(false)
             }
         }
 
@@ -495,12 +498,14 @@ class MainActivity : AppCompatActivity(), PresetHost {
             if (isPlaying) {
                 stopAll()
             } else {
-                runWaveform(looping = true)
+                val runner = lastPlaybackRunner ?: { runWaveform(looping = true) }
+                runner.invoke(true)
             }
         }
     }
 
     private fun runWaveform(looping: Boolean) {
+        lastPlaybackRunner = { forceLooping -> runWaveform(forceLooping) }
         stopAll()
         val waveform = generateCurrentWaveform()
         if (waveform.timings.isEmpty()) return
@@ -549,12 +554,40 @@ class MainActivity : AppCompatActivity(), PresetHost {
                 stopAll()
                 return@setOnClickListener
             }
-            val dur = binding.sliderSingleDuration.value.toLong()
-            val amp = binding.sliderSingleAmplitude.value.toInt()
-            val point = VibrationGraphView.VibrationPoint(0, 0f, amp.toFloat(), dur.toFloat())
-            binding.graphView.setPattern(listOf(point), false)
-            Haptics.playOneShot(vibrator, dur, amp)
-            animateGraphProgress(dur)
+            val runner: (Boolean) -> Unit = { looping ->
+                val dur = binding.sliderSingleDuration.value.toLong()
+                val amp = binding.sliderSingleAmplitude.value.toInt()
+                if (looping) {
+                    playSinglePulseLooping(dur, amp)
+                } else {
+                    val point = VibrationGraphView.VibrationPoint(0, 0f, amp.toFloat(), dur.toFloat())
+                    binding.graphView.setPattern(listOf(point), false)
+                    Haptics.playOneShot(vibrator, dur, amp)
+                    animateGraphProgress(dur)
+                }
+            }
+            lastPlaybackRunner = runner
+            runner.invoke(false)
+        }
+    }
+
+    private fun playSinglePulseLooping(dur: Long, amp: Int) {
+        stopAll()
+        val point = VibrationGraphView.VibrationPoint(0, 0f, amp.toFloat(), dur.toFloat())
+        binding.graphView.setPattern(listOf(point), false)
+        setPlaybackUiState(playing = true, looping = true)
+        val loopInterval = (dur + 60L).coerceAtLeast(100L)
+        activePlaybackJob = lifecycleScope.launch(Dispatchers.Main) {
+            while (isActive) {
+                Haptics.playOneShot(vibrator, dur, amp)
+                val startTime = System.currentTimeMillis()
+                while (isActive && System.currentTimeMillis() - startTime < loopInterval) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    binding.graphView.setPlaybackProgress(elapsed.coerceAtMost(dur).toFloat())
+                    delay(16)
+                }
+            }
+            setPlaybackUiState(playing = false, looping = false)
         }
     }
 
@@ -656,6 +689,13 @@ class MainActivity : AppCompatActivity(), PresetHost {
     }
 
     override fun playWaveformDirect(waveform: GeneratedWaveform, looping: Boolean, presetTitleRes: Int) {
+        lastPlaybackRunner = { forceLooping ->
+            playWaveformDirectInternal(waveform, forceLooping, presetTitleRes)
+        }
+        playWaveformDirectInternal(waveform, looping, presetTitleRes)
+    }
+
+    private fun playWaveformDirectInternal(waveform: GeneratedWaveform, looping: Boolean, presetTitleRes: Int) {
         stopAll()
         if (waveform.timings.isEmpty()) return
         currentActiveWaveform = waveform
@@ -692,11 +732,48 @@ class MainActivity : AppCompatActivity(), PresetHost {
         presetTitleRes: Int,
         action: () -> Unit
     ) {
+        lastPlaybackRunner = { looping ->
+            if (looping) {
+                runOneShotPresetLooping(points, durationMs, presetTitleRes, action)
+            } else {
+                stopAll()
+                activePresetTitleRes = presetTitleRes
+                binding.graphView.setPattern(points, false)
+                action()
+                animateGraphProgress(durationMs)
+            }
+        }
         stopAll()
         activePresetTitleRes = presetTitleRes
         binding.graphView.setPattern(points, false)
         action()
         animateGraphProgress(durationMs)
+    }
+
+    private fun runOneShotPresetLooping(
+        points: List<VibrationGraphView.VibrationPoint>,
+        durationMs: Long,
+        presetTitleRes: Int,
+        action: () -> Unit
+    ) {
+        stopAll()
+        activePresetTitleRes = presetTitleRes
+        binding.graphView.setPattern(points, false)
+        setPlaybackUiState(playing = true, looping = true)
+
+        val cyclePeriod = (durationMs + 60L).coerceAtLeast(120L)
+        activePlaybackJob = lifecycleScope.launch(Dispatchers.Main) {
+            while (isActive) {
+                action()
+                val startTime = System.currentTimeMillis()
+                while (isActive && System.currentTimeMillis() - startTime < cyclePeriod) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    binding.graphView.setPlaybackProgress(elapsed.coerceAtMost(durationMs).toFloat())
+                    delay(16)
+                }
+            }
+            setPlaybackUiState(playing = false, looping = false)
+        }
     }
 
     override fun postDelayed(delayMs: Long, action: () -> Unit) {
