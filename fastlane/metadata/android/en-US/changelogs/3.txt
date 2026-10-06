@@ -1,0 +1,1 @@
+v1.2.0 release: New adaptive launcher icon, dynamic Monet theme support, and store metadata updates.
