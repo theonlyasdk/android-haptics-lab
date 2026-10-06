@@ -94,6 +94,14 @@ class MainActivity : AppCompatActivity(), PresetHost {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.menu_diagnostics -> {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Hardware Diagnostics")
+                    .setMessage(Haptics.getHardwareDiagnostics(this))
+                    .setPositiveButton(R.string.about_dialog_ok, null)
+                    .show()
+                true
+            }
             R.id.menu_view_source -> {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/theonlyasdk/android-haptics-lab"))
                 startActivity(intent)
