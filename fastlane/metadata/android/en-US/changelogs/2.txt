@@ -1,0 +1,1 @@
+Version 1.1.0: loop any pattern including one-shots and single pulse, async haptic dispatch off main thread, 10 new one-shot and 10 new looping presets, hardware diagnostics dialog.

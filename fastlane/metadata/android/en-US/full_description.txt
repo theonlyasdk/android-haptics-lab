@@ -1,0 +1,10 @@
+Haptics Lab is a fully offline, open-source vibration laboratory for Android.
+
+• Probe hardware: vibrator presence, amplitude control, composition primitives
+• Generate patterns: discrete pulses, sine, square, sawtooth, triangle, chirp sweeps, LFO modulation
+• Visualize waveforms on an interactive 2D graph with playhead, zoom and pan
+• Benchmark impulses: 18 one-shot clicks/taps/thuds plus 17 looping rhythms (Morse, engine idle, siren, breathing)
+• Play once or loop any pattern, with live timing and amplitude preview
+• No ads, no tracking, no network access — VIBRATE permission only
+
+Licensed under the MIT License. Source: https://github.com/theonlyasdk/android-haptics-lab

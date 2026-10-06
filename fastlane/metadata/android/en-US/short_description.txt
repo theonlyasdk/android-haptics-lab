@@ -1,0 +1,1 @@
+Test, design and benchmark Android vibration patterns offline.
