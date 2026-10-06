@@ -1,0 +1,9 @@
+Haptics Lab is a modern Android haptics testing, continuous waveform generation, and impulse benchmarking application.
+
+Features:
+- Hardware capability diagnostics (amplitude control, API 30+ primitives, Q-factor, resonant frequency, predefined effects).
+- Interactive waveform generator (Sine, Square, Sawtooth, Triangle, Chirp sweeps, frequency modulation).
+- High-performance canvas visualizer with live playhead and touch interaction.
+- 18 crisp one-shot impulse presets & 17 looping rhythm presets.
+- Open source license viewer.
+- Universal pattern loop & repeat system.

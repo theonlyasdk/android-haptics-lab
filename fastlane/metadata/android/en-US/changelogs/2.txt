@@ -1,0 +1,1 @@
+v1.1.0 release: Hardware diagnostics, async binder IPC off main thread, primitives scaling fixes, universal pattern looping.
